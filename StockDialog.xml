@@ -1,0 +1,25 @@
+<GuiXml>
+	<Controls>
+		<TopLevelControl name="StockItem" inherits="ZO_CustomDialogBase">
+			<OnInitialized>
+				StockUp_SetupDialog(self)
+			</OnInitialized>
+
+			<Controls>
+                <Label name="$(parent)Prompt" inherits="ZO_DialogContentAnchors" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" font="ZoFontGame"/>
+
+                <Button name="$(parent)Source" inherits="ZO_ItemSlot">
+                    <Anchor point="TOP" relativeTo="$(parent)Prompt" relativePoint="BOTTOM" offsetX="0" offsetY="0" />
+                    <Dimensions x="48" y="48" />
+                </Button>
+
+                <Control name="$(parent)Spinner" inherits="ZO_EditSpinner">
+                    <Anchor point="TOP" relativeTo="$(parent)Source" relativePoint="BOTTOM" offsetY="7" />
+                </Control>
+
+                <Control name="$(parent)Cancel" inherits="ZO_CustomDialogButton"/>
+                <Control name="$(parent)Split" inherits="ZO_CustomDialogButton"/>
+            </Controls>
+        </TopLevelControl>
+    </Controls>
+</GuiXml>
