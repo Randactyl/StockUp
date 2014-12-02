@@ -22,7 +22,6 @@ local function SetupStockItem(stackControl, inventorySlotControl)
     stackControl.slotControl = inventorySlotControl
 
     local itemIcon, _, _, _, _, _, _, quality = GetItemInfo(bagId, slotIndex)
-    local itemName = GetItemName(bagId, slotIndex)
     local qualityColor = GetItemQualityColor(quality)
 
     local sourceSlot = GetControl(stackControl, "Source")
@@ -48,18 +47,18 @@ function StockUp_SetupDialog(self)
                 control = GetControl(self, "Split"),
                 text = str.STOCK_ITEM_MENU_OPTION,
                 callback = function(stackControl)
-                			   local bagId, slotIndex = ZO_Inventory_GetBagAndIndex(stackControl.slotControl)
-                               local signedItemInstanceId = SignItemId(GetItemInstanceId(bagId, slotIndex))
-                               local stock = StockUpSettings:GetStockedItems()
+    			   local bagId, slotIndex = ZO_Inventory_GetBagAndIndex(stackControl.slotControl)
+                   local signedItemInstanceId = SignItemId(GetItemInstanceId(bagId, slotIndex))
+                   local stock = StockUpSettings:GetStockedItems()
 
-                               stock[signedItemInstanceId] = {
-									itemName = GetItemName(bagId, slotIndex),
-									itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(bagId, slotIndex))),
-									amount = stackControl.spinner:GetValue() or 600
-							   }
+                   stock[signedItemInstanceId] = {
+						itemName = zo_strformat("<<t:1>>", GetItemName(bagId, slotIndex)),
+						itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(bagId, slotIndex))),
+						amount = stackControl.spinner:GetValue(),
+				   }
 
-                               d(str.STOCK_ITEM_CONFIRMATION .. stock[signedItemInstanceId].amount .. " " .. stock[signedItemInstanceId].itemName .. "!")
-                           end,
+                   d(str.STOCK_ITEM_CONFIRMATION .. stock[signedItemInstanceId].amount .. " " .. stock[signedItemInstanceId].itemName .. "!")
+               end,
             },
             [2] = {
                 control = GetControl(self, "Cancel"),

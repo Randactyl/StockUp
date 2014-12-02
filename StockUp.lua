@@ -36,26 +36,26 @@ local function FindStoreItem(itemId)
 end
 
 local function GetItemCount(itemInstanceId)
-	local inventory = PLAYER_INVENTORY.inventories[INVENTORY_BACKPACK]
-	local contents = inventory.slots
+	local inventory = BACKPACK--PLAYER_INVENTORY.inventories[INVENTORY_BACKPACK]
+	local contents = inventory.data --inventory.slots
 	local numFound = 0
 
-	--bagId is BAG_BACKPACK, slotIndex is i
-	for i = 0, #contents, 1 do
-		if(itemInstanceId == GetItemInstanceId(BAG_BACKPACK, i)) then
-			numFound = numFound + contents[i].stackCount
+	for i = 1, #contents, 1 do
+		if(itemInstanceId == GetItemInstanceId(BAG_BACKPACK, contents[i].data.slotIndex)) then
+			numFound = numFound + contents[i].data.stackCount
 		end
 	end
 	return numFound
 end
 
 local function IsItemStocked(signedItemId)
-	return stock[signedItemId]
+	if stock[signedItemId] ~= nil then return true end
+	return false
 end
 
 local function StockUp_StoreOpened()
 	for i = 1, #BACKPACK.data, 1 do
-		local itemInstanceId = GetItemInstanceId(BAG_BACKPACK, i)
+		local itemInstanceId = GetItemInstanceId(BAG_BACKPACK, BACKPACK.data[i].data.slotIndex)
 		local signedItemInstanceId = SignItemId(itemInstanceId)
 		if IsItemStocked(signedItemInstanceId) then
 			local itemId = stock[signedItemInstanceId].itemId
