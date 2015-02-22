@@ -8,20 +8,6 @@ local INT_MAX = 2^32
 
 local dbg = false
 
-local function SignItemId(itemId)
-	if(itemId and itemId > SIGNED_INT_MAX) then
-		itemId = itemId - INT_MAX
-	end
-	return itemId
-end
-
-local function MyGetItemInstanceId(rowControl)
-	local bagId, slotIndex 
-	bagId = rowControl.bagId
-	slotIndex = rowControl.slotIndex
-	return SignItemId(GetItemInstanceId(bagId, slotIndex))
-end
-
 local function FindStoreItem(itemId)
 	local preferAP = SUSettings:GetCurrencyPreference()
 
@@ -37,32 +23,33 @@ local function FindStoreItem(itemId)
    	end
 end
 
-local function GetItemCount(itemInstanceId)
+local function GetItemCount(itemId)
 	local inventory = BACKPACK--PLAYER_INVENTORY.inventories[INVENTORY_BACKPACK]
 	local contents = inventory.data --inventory.slots
 	local numFound = 0
 
 	for i = 1, #contents, 1 do
-		if(itemInstanceId == GetItemInstanceId(BAG_BACKPACK, contents[i].data.slotIndex)) then
+		if(itemId == select(4,
+			ZO_LinkHandler_ParseLink(GetItemLink(BAG_BACKPACK, contents[i].data.slotIndex)))) then
 			numFound = numFound + contents[i].data.stackCount
 		end
 	end
 	return numFound
 end
 
-local function IsItemStocked(signedItemId)
-	if stock[signedItemId] ~= nil then return true end
+local function IsItemStocked(itemId)
+	if stock[itemId] ~= nil then return true end
 	return false
 end
 
 local function StockUp_StoreOpened()
 	for i = 1, #BACKPACK.data, 1 do
 		local itemInstanceId = GetItemInstanceId(BAG_BACKPACK, BACKPACK.data[i].data.slotIndex)
-		local signedItemInstanceId = SignItemId(itemInstanceId)
-		if IsItemStocked(signedItemInstanceId) then
-			local itemId = stock[signedItemInstanceId].itemId
-			local amountWanted = stock[signedItemInstanceId].amount
-			local amountHave = GetItemCount(itemInstanceId)
+		local itemId = select(4,
+			ZO_LinkHandler_ParseLink(GetItemLink(BAG_BACKPACK, BACKPACK.data[i].data.slotIndex)))
+		if IsItemStocked(itemId) then
+			local amountWanted = stock[itemId].amount
+			local amountHave = GetItemCount(itemId)
 			local amountNeeded = amountWanted - amountHave
 
 			if amountNeeded > 0 then
@@ -70,7 +57,7 @@ local function StockUp_StoreOpened()
 				if storeItemId then
 					if stack > 0 then
 						local quantity = zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))
-						local itemName = stock[signedItemInstanceId].itemName
+						local itemName = stock[itemId].itemName
 
 						if dbg == false then BuyStoreItem(storeIndex, quantity) end
 						d(str.PURCHASE_CONFIRMATION .. quantity .. " " .. itemName)
@@ -82,13 +69,13 @@ local function StockUp_StoreOpened()
 end
 
 local function DestockItem(rowControl)
-	itemId = MyGetItemInstanceId(rowControl)
+	local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
 	d(str.DESTOCK_ITEM_CONFIRMATION .. stock[itemId].itemName .. ".")
 	stock[itemId] = nil
 end
 
 local function StockItem(rowControl)
-	itemId = MyGetItemInstanceId(rowControl)
+	local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
 	if(not itemId) then return end
 	ZO_Dialogs_ShowDialog("STOCK_ITEM", rowControl)
 end
@@ -96,7 +83,9 @@ end
 local function AddContextMenuOption(rowControl)
 	local menuIndex = nil
 	local menuItem = nil
-	if(not stock[MyGetItemInstanceId(rowControl)]) then
+	local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
+
+	if(not stock[itemId]) then
 		menuIndex = AddMenuItem(str.STOCK_ITEM_MENU_OPTION, function() StockItem(rowControl) end, MENU_ADD_OPTION_LABEL)
 		menuItem = ZO_Menu:GetNamedChild("Item"..menuIndex)
 		menuItem.OnSelect = function() StockItem(rowControl) end
@@ -131,8 +120,8 @@ local function StockUp_Loaded(eventCode, addonName)
 	stock = SUSettings:GetStockedItems()
 	str = StockUpStrings[SUSettings:GetLanguage()]
 
-	ZO_PreHook("ZO_InventorySlot_ShowContextMenu", AddContextMenuOptionSoon)
 	SetupDebugSlashCommand()
+	ZO_PreHook("ZO_InventorySlot_ShowContextMenu", AddContextMenuOptionSoon)
 
 	EVENT_MANAGER:RegisterForEvent("StoreOpened", EVENT_OPEN_STORE, StockUp_StoreOpened)
 end

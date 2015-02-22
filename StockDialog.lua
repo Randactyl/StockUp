@@ -2,13 +2,6 @@ local SIGNED_INT_MAX = 2^32 / 2 - 1
 local INT_MAX = 2^32
 local str = StockUpStrings[StockUpSettings:GetLanguage()]
 
-local function SignItemId(itemInstanceId)
-    if(itemInstanceId and itemInstanceId > SIGNED_INT_MAX) then
-        itemInstanceId = itemInstanceId - INT_MAX
-    end
-    return itemInstanceId
-end
-
 local function RefreshDestinations(stackControl)
     local stackLabel = GetControl(stackControl, "SourceStackCount")
     stackLabel:SetText(stackControl.spinner:GetValue())
@@ -48,16 +41,15 @@ function StockUp_SetupDialog(self)
                 text = str.STOCK_ITEM_MENU_OPTION,
                 callback = function(stackControl)
     			   local bagId, slotIndex = ZO_Inventory_GetBagAndIndex(stackControl.slotControl)
-                   local signedItemInstanceId = SignItemId(GetItemInstanceId(bagId, slotIndex))
+                   local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(bagId, slotIndex)))
                    local stock = StockUpSettings:GetStockedItems()
 
-                   stock[signedItemInstanceId] = {
+                   stock[itemId] = {
 						itemName = zo_strformat("<<t:1>>", GetItemName(bagId, slotIndex)),
-						itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(bagId, slotIndex))),
 						amount = stackControl.spinner:GetValue(),
 				   }
 
-                   d(str.STOCK_ITEM_CONFIRMATION .. stock[signedItemInstanceId].amount .. " " .. stock[signedItemInstanceId].itemName .. "!")
+                   d(str.STOCK_ITEM_CONFIRMATION .. stock[itemId].amount .. " " .. stock[itemId].itemName .. "!")
                end,
             },
             [2] = {
