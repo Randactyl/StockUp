@@ -6,6 +6,8 @@ local BACKPACK = ZO_PlayerInventoryBackpack
 local SIGNED_INT_MAX = 2^32 / 2 - 1
 local INT_MAX = 2^32
 
+local dbg = false
+
 local function SignItemId(itemId)
 	if(itemId and itemId > SIGNED_INT_MAX) then
 		itemId = itemId - INT_MAX
@@ -69,7 +71,8 @@ local function StockUp_StoreOpened()
 					if stack > 0 then
 						local quantity = zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))
 						local itemName = stock[signedItemInstanceId].itemName
-						BuyStoreItem(storeIndex, quantity)
+
+						if dbg == false then BuyStoreItem(storeIndex, quantity) end
 						d(str.PURCHASE_CONFIRMATION .. quantity .. " " .. itemName)
 					end
 				end
@@ -112,6 +115,14 @@ local function AddContextMenuOptionSoon(rowControl)
 	zo_callLater(function() AddContextMenuOption(rowControl) end, 50)
 end
 
+local function SetupDebugSlashCommand()
+	SLASH_COMMANDS["/stockupdebug"] = function()
+		dbg = not dbg
+		if dbg then d("Debug set to true.")
+		else d("Debug set to false.") end
+	end
+end
+
 local function StockUp_Loaded(eventCode, addonName)
 	if(addonName ~= "StockUp") then return end
 	EVENT_MANAGER:UnregisterForEvent("StockUpLoaded", EVENT_ADD_ON_LOADED)
@@ -121,6 +132,7 @@ local function StockUp_Loaded(eventCode, addonName)
 	str = StockUpStrings[SUSettings:GetLanguage()]
 
 	ZO_PreHook("ZO_InventorySlot_ShowContextMenu", AddContextMenuOptionSoon)
+	SetupDebugSlashCommand()
 
 	EVENT_MANAGER:RegisterForEvent("StoreOpened", EVENT_OPEN_STORE, StockUp_StoreOpened)
 end
