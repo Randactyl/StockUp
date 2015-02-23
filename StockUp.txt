@@ -1,6 +1,6 @@
 ## Title: Stock Up
 ## Author: Randactyl
-## Version: 1.1.0.0
+## Version: 1.1.0.1
 ## APIVersion: 100011
 ## SavedVariables: StockUp_Settings
 ## OptionalDependsOn: libAddonMenu-2.0
