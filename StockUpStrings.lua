@@ -25,11 +25,11 @@ StockUpStrings = {
         DESTOCK_ITEM_CONFIRMATION = "No longer stocking ", --"No longer stocking Pact Stone Trebuchet."
         PURCHASE_CONFIRMATION = "Bought " -- "Bought 15 Pact Stone Trebuchet!"
     },
-    ["es"] = {}
+    ["es"] = {},
     ["fr"] = {
         STOCK_UP_NAME = "Stock Up",
     },
-    ["ru"] = {}
+    ["ru"] = {},
 }
 
 setmetatable(StockUpStrings["de"], {__index = StockUpStrings["en"]})
