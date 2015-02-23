@@ -1,31 +1,16 @@
-local SIGNED_INT_MAX = 2^32 / 2 - 1
-local INT_MAX = 2^32
 local str = StockUpStrings[StockUpSettings:GetLanguage()]
+local data = nil
 
-local function RefreshDestinations(stackControl)
-    local stackLabel = GetControl(stackControl, "SourceStackCount")
-    stackLabel:SetText(stackControl.spinner:GetValue())
-end
-
+--inventoryItemControl is child of rowControl
 local function SetupStockItem(stackControl, inventorySlotControl)
-    local bagId, slotIndex = ZO_Inventory_GetBagAndIndex(inventorySlotControl)
-    local stackSize = GetSlotStackSize(bagId, slotIndex)
-
-    stackControl.stackSize = stackSize
-    stackControl.slotControl = inventorySlotControl
-
-    local itemIcon, _, _, _, _, _, _, quality = GetItemInfo(bagId, slotIndex)
-    local qualityColor = GetItemQualityColor(quality)
-
+    data = inventorySlotControl:GetParent().dataEntry.data
+    local itemIcon = data.iconFile or data.icon
     local sourceSlot = GetControl(stackControl, "Source")
-    
-    ZO_ItemSlot_SetupSlot(sourceSlot, 0, itemIcon)
 
-    ZO_Inventory_BindSlot(sourceSlot, SLOT_TYPE_STACK_SPLIT, slotIndex, bagId)
-
-    stackControl.spinner:SetMinMax(1, 100)
+    stackControl.slotControl = inventorySlotControl
+    stackControl.spinner:SetMinMax(1, nil)
     stackControl.spinner:SetValue(5)
-    RefreshDestinations(stackControl)
+    ZO_ItemSlot_SetupSlot(sourceSlot, 0, itemIcon)
 end
 
 function StockUp_SetupDialog(self)
@@ -40,17 +25,24 @@ function StockUp_SetupDialog(self)
                 control = GetControl(self, "Split"),
                 text = str.STOCK_ITEM_MENU_OPTION,
                 callback = function(stackControl)
-    			   local bagId, slotIndex = ZO_Inventory_GetBagAndIndex(stackControl.slotControl)
-                   local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(bagId, slotIndex)))
-                   local stock = StockUpSettings:GetStockedItems()
+    			    local bagId = data.bagId
+                    local slotIndex = data.slotIndex
+                    local itemId, itemLink
+                    if bagId then
+                        itemLink = GetItemLink(bagId, slotIndex)
+                    else
+                        itemLink = GetStoreItemLink(slotIndex)
+                    end
+                    itemId = select(4, ZO_LinkHandler_ParseLink(itemLink))
+                    local stock = StockUpSettings:GetStockedItems()
 
-                   stock[itemId] = {
-						itemName = zo_strformat("<<t:1>>", GetItemName(bagId, slotIndex)),
+                    stock[itemId] = {
+						itemName = zo_strformat("<<t:1>>", GetItemLinkName(itemLink)),
 						amount = stackControl.spinner:GetValue(),
-				   }
+				    }
 
-                   d(str.STOCK_ITEM_CONFIRMATION .. stock[itemId].amount .. " " .. stock[itemId].itemName .. "!")
-               end,
+                    d(str.STOCK_ITEM_CONFIRMATION .. stock[itemId].amount .. " " .. stock[itemId].itemName .. "!")
+                end,
             },
             [2] = {
                 control = GetControl(self, "Cancel"),
@@ -66,12 +58,7 @@ function StockUp_SetupDialog(self)
         end
     end
 
-    local function OnSpinnerValueChanged()
-        RefreshDestinations(self)
-    end
-
     self.spinner = ZO_Spinner:New(GetControl(self, "Spinner"))
-    self.spinner:RegisterCallback("OnValueChanged", OnSpinnerValueChanged)
 
     EVENT_MANAGER:RegisterForEvent("ZO_Stack", EVENT_CURSOR_PICKUP, HandleCursorPickup)
 end

@@ -2,6 +2,7 @@ local SUSettings = nil
 local stock = nil
 
 local BACKPACK = ZO_PlayerInventoryBackpack
+local STORE = ZO_StoreWindowList
 
 local SIGNED_INT_MAX = 2^32 / 2 - 1
 local INT_MAX = 2^32
@@ -48,7 +49,7 @@ local function StockUp_StoreOpened()
 		local amountWanted = stock[itemId].amount
 		local amountHave = 0
 		if backpackTable[itemId] then
-			amountHave = backpackTable.amountHave
+			amountHave = backpackTable[itemId].amountHave
 		end
 		local amountNeeded = amountWanted - amountHave
 
@@ -66,13 +67,25 @@ local function StockUp_StoreOpened()
 end
 
 local function DestockItem(rowControl)
-	local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
+	local itemId
+	if rowControl.bagId then
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
+	else
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.slotIndex)))
+	end
+
 	d(str.DESTOCK_ITEM_CONFIRMATION .. stock[itemId].itemName .. ".")
 	stock[itemId] = nil
 end
 
 local function StockItem(rowControl)
-	local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
+	local itemId
+	if rowControl.bagId then
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
+	else
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.slotIndex)))
+	end
+
 	if(not itemId) then return end
 	ZO_Dialogs_ShowDialog("STOCK_ITEM", rowControl)
 end
@@ -80,7 +93,12 @@ end
 local function AddContextMenuOption(rowControl)
 	local menuIndex = nil
 	local menuItem = nil
-	local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
+	local itemId
+	if rowControl.bagId then
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
+	else
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.slotIndex)))
+	end
 
 	if(not stock[itemId]) then
 		menuIndex = AddMenuItem(str.STOCK_ITEM_MENU_OPTION, function() StockItem(rowControl) end, MENU_ADD_OPTION_LABEL)
@@ -96,9 +114,9 @@ end
 
 local function AddContextMenuOptionSoon(rowControl)
 	if(rowControl:GetOwningWindow() == ZO_TradingHouse) then return end
-	if(BACKPACK:IsHidden()) then return end
-
-	zo_callLater(function() AddContextMenuOption(rowControl) end, 50)
+	if(not BACKPACK:IsHidden() or not STORE:IsHidden()) then
+		zo_callLater(function() AddContextMenuOption(rowControl) end, 50)
+	end
 end
 
 local function SetupDebugSlashCommand()
