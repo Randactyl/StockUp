@@ -56,7 +56,8 @@ local function StockUp_StoreOpened()
 		if amountNeeded > 0 then
 			local storeIndex, stack = FindStoreItem(itemId)
 			if stack ~= nil then
-				local quantity = zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))
+				local quantity = zo_min(GetNumBagFreeSlots(BAG_BACKPACK),
+					zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex)))
 				local itemName = stock[itemId].itemName
 
 				if dbg == false then BuyStoreItem(storeIndex, quantity) end
