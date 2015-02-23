@@ -1,11 +1,9 @@
 local SUSettings = nil
 local stock = nil
+local str = nil
 
 local BACKPACK = ZO_PlayerInventoryBackpack
 local STORE = ZO_StoreWindowList
-
-local SIGNED_INT_MAX = 2^32 / 2 - 1
-local INT_MAX = 2^32
 
 local dbg = false
 

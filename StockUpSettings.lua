@@ -3,6 +3,7 @@ StockUpSettings = ZO_Object:Subclass()
 local LAM = LibStub("LibAddonMenu-2.0")
 local settings = nil
 local version = "2.0"
+local str = nil
 
 function StockUpSettings:New()
 	local obj = ZO_Object.New(self)
