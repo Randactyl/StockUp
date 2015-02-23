@@ -16,53 +16,50 @@ local function FindStoreItem(itemId)
 		local storeItemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(index)))
 
 		if (preferAP == true) and (currencyType1 == 2) then
- 			if itemId == storeItemId then return storeItemId, stack, index end
+ 			if itemId == storeItemId then return index, stack end
 		elseif (preferAP == false) and (currencyType1 == 0) then
- 			if itemId == storeItemId then return storeItemId, stack, index end
+ 			if itemId == storeItemId then return index, stack end
    		end
    	end
 end
 
-local function GetItemCount(itemId)
-	local inventory = BACKPACK--PLAYER_INVENTORY.inventories[INVENTORY_BACKPACK]
-	local contents = inventory.data --inventory.slots
-	local numFound = 0
+local function GatherBackpackInfo()
+	local backpackTable = {}
+	local contents = BACKPACK.data
 
-	for i = 1, #contents, 1 do
-		if(itemId == select(4,
-			ZO_LinkHandler_ParseLink(GetItemLink(BAG_BACKPACK, contents[i].data.slotIndex)))) then
-			numFound = numFound + contents[i].data.stackCount
+	for i = 1, #contents do
+		local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(BAG_BACKPACK, contents[i].data.slotIndex)))
+		
+		if backpackTable[itemId] == nil then 
+			backpackTable[itemId] = {
+				amountHave = 0,
+			}
 		end
+		backpackTable[itemId].amountHave = backpackTable[itemId].amountHave + contents[i].data.stackCount
 	end
-	return numFound
-end
 
-local function IsItemStocked(itemId)
-	if stock[itemId] ~= nil then return true end
-	return false
+	return backpackTable
 end
 
 local function StockUp_StoreOpened()
-	for i = 1, #BACKPACK.data, 1 do
-		local itemInstanceId = GetItemInstanceId(BAG_BACKPACK, BACKPACK.data[i].data.slotIndex)
-		local itemId = select(4,
-			ZO_LinkHandler_ParseLink(GetItemLink(BAG_BACKPACK, BACKPACK.data[i].data.slotIndex)))
-		if IsItemStocked(itemId) then
-			local amountWanted = stock[itemId].amount
-			local amountHave = GetItemCount(itemId)
-			local amountNeeded = amountWanted - amountHave
+	local backpackTable = GatherBackpackInfo()
 
-			if amountNeeded > 0 then
-				local storeItemId, stack, storeIndex = FindStoreItem(itemId)
-				if storeItemId then
-					if stack > 0 then
-						local quantity = zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))
-						local itemName = stock[itemId].itemName
+	for itemId, _ in pairs(stock) do
+		local amountWanted = stock[itemId].amount
+		local amountHave = 0
+		if backpackTable[itemId] then
+			amountHave = backpackTable.amountHave
+		end
+		local amountNeeded = amountWanted - amountHave
 
-						if dbg == false then BuyStoreItem(storeIndex, quantity) end
-						d(str.PURCHASE_CONFIRMATION .. quantity .. " " .. itemName)
-					end
-				end
+		if amountNeeded > 0 then
+			local storeIndex, stack = FindStoreItem(itemId)
+			if stack ~= nil then
+				local quantity = zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))
+				local itemName = stock[itemId].itemName
+
+				if dbg == false then BuyStoreItem(storeIndex, quantity) end
+				d(str.PURCHASE_CONFIRMATION .. quantity .. " " .. itemName)
 			end
 		end
 	end
