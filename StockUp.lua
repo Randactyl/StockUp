@@ -37,6 +37,7 @@ local function GatherBackpackInfo()
 			}
 		end
 		backpackTable[itemId].amountHave = backpackTable[itemId].amountHave + contents[i].data.stackCount
+		if dbg == true then d("have " .. backpackTable[itemId].amountHave .. " " .. contents[i].data.name) end
 	end
 
 	return backpackTable
@@ -52,12 +53,13 @@ local function StockUp_StoreOpened()
 			amountHave = backpackTable[itemId].amountHave
 		end
 		local amountNeeded = amountWanted - amountHave
+		if dbg == true then d("need " .. amountNeeded .. " " .. stock[itemId].itemName) end
 
 		if amountNeeded > 0 then
 			local storeIndex, stack = FindStoreItem(itemId)
 			if stack ~= nil then
-				local quantity = zo_min(GetNumBagFreeSlots(BAG_BACKPACK),
-					zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex)))
+				local quantity = --[[zo_min(GetNumBagFreeSlots(BAG_BACKPACK),]]
+					zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))--)
 				local itemName = stock[itemId].itemName
 
 				if dbg == false then BuyStoreItem(storeIndex, quantity) end
