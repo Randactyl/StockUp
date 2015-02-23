@@ -2,23 +2,12 @@ local SUSettings = nil
 local stock = nil
 
 local BACKPACK = ZO_PlayerInventoryBackpack
+local STORE = ZO_StoreWindowList
 
 local SIGNED_INT_MAX = 2^32 / 2 - 1
 local INT_MAX = 2^32
 
-local function SignItemId(itemId)
-	if(itemId and itemId > SIGNED_INT_MAX) then
-		itemId = itemId - INT_MAX
-	end
-	return itemId
-end
-
-local function MyGetItemInstanceId(rowControl)
-	local bagId, slotIndex 
-	bagId = rowControl.bagId
-	slotIndex = rowControl.slotIndex
-	return SignItemId(GetItemInstanceId(bagId, slotIndex))
-end
+local dbg = false
 
 local function FindStoreItem(itemId)
 	local preferAP = SUSettings:GetCurrencyPreference()
@@ -28,64 +17,78 @@ local function FindStoreItem(itemId)
 		local storeItemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(index)))
 
 		if (preferAP == true) and (currencyType1 == 2) then
- 			if itemId == storeItemId then return storeItemId, stack, index end
+ 			if itemId == storeItemId then return index, stack end
 		elseif (preferAP == false) and (currencyType1 == 0) then
- 			if itemId == storeItemId then return storeItemId, stack, index end
+ 			if itemId == storeItemId then return index, stack end
    		end
    	end
 end
 
-local function GetItemCount(itemInstanceId)
-	local inventory = BACKPACK--PLAYER_INVENTORY.inventories[INVENTORY_BACKPACK]
-	local contents = inventory.data --inventory.slots
-	local numFound = 0
+local function GatherBackpackInfo()
+	local backpackTable = {}
+	local contents = BACKPACK.data
 
-	for i = 1, #contents, 1 do
-		if(itemInstanceId == GetItemInstanceId(BAG_BACKPACK, contents[i].data.slotIndex)) then
-			numFound = numFound + contents[i].data.stackCount
+	for i = 1, #contents do
+		local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(BAG_BACKPACK, contents[i].data.slotIndex)))
+		
+		if backpackTable[itemId] == nil then 
+			backpackTable[itemId] = {
+				amountHave = 0,
+			}
 		end
+		backpackTable[itemId].amountHave = backpackTable[itemId].amountHave + contents[i].data.stackCount
+		if dbg == true then d("have " .. backpackTable[itemId].amountHave .. " " .. contents[i].data.name) end
 	end
-	return numFound
-end
 
-local function IsItemStocked(signedItemId)
-	if stock[signedItemId] ~= nil then return true end
-	return false
+	return backpackTable
 end
 
 local function StockUp_StoreOpened()
-	for i = 1, #BACKPACK.data, 1 do
-		local itemInstanceId = GetItemInstanceId(BAG_BACKPACK, BACKPACK.data[i].data.slotIndex)
-		local signedItemInstanceId = SignItemId(itemInstanceId)
-		if IsItemStocked(signedItemInstanceId) then
-			local itemId = stock[signedItemInstanceId].itemId
-			local amountWanted = stock[signedItemInstanceId].amount
-			local amountHave = GetItemCount(itemInstanceId)
-			local amountNeeded = amountWanted - amountHave
+	local backpackTable = GatherBackpackInfo()
 
-			if amountNeeded > 0 then
-				local storeItemId, stack, storeIndex = FindStoreItem(itemId)
-				if storeItemId then
-					if stack > 0 then
-						local quantity = zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))
-						local itemName = stock[signedItemInstanceId].itemName
-						BuyStoreItem(storeIndex, quantity)
-						d(str.PURCHASE_CONFIRMATION .. quantity .. " " .. itemName)
-					end
-				end
+	for itemId, _ in pairs(stock) do
+		local amountWanted = stock[itemId].amount
+		local amountHave = 0
+		if backpackTable[itemId] then
+			amountHave = backpackTable[itemId].amountHave
+		end
+		local amountNeeded = amountWanted - amountHave
+		if dbg == true then d("need " .. amountNeeded .. " " .. stock[itemId].itemName) end
+
+		if amountNeeded > 0 then
+			local storeIndex, stack = FindStoreItem(itemId)
+			if stack ~= nil then
+				local quantity = --[[zo_min(GetNumBagFreeSlots(BAG_BACKPACK),]]
+					zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))--)
+				local itemName = stock[itemId].itemName
+
+				if dbg == false then BuyStoreItem(storeIndex, quantity) end
+				d(str.PURCHASE_CONFIRMATION .. quantity .. " " .. itemName)
 			end
 		end
 	end
 end
 
 local function DestockItem(rowControl)
-	itemId = MyGetItemInstanceId(rowControl)
+	local itemId
+	if rowControl.bagId then
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
+	else
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.slotIndex)))
+	end
+
 	d(str.DESTOCK_ITEM_CONFIRMATION .. stock[itemId].itemName .. ".")
 	stock[itemId] = nil
 end
 
 local function StockItem(rowControl)
-	itemId = MyGetItemInstanceId(rowControl)
+	local itemId
+	if rowControl.bagId then
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
+	else
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.slotIndex)))
+	end
+
 	if(not itemId) then return end
 	ZO_Dialogs_ShowDialog("STOCK_ITEM", rowControl)
 end
@@ -93,7 +96,14 @@ end
 local function AddContextMenuOption(rowControl)
 	local menuIndex = nil
 	local menuItem = nil
-	if(not stock[MyGetItemInstanceId(rowControl)]) then
+	local itemId
+	if rowControl.bagId then
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
+	else
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.slotIndex)))
+	end
+
+	if(not stock[itemId]) then
 		menuIndex = AddMenuItem(str.STOCK_ITEM_MENU_OPTION, function() StockItem(rowControl) end, MENU_ADD_OPTION_LABEL)
 		menuItem = ZO_Menu:GetNamedChild("Item"..menuIndex)
 		menuItem.OnSelect = function() StockItem(rowControl) end
@@ -107,9 +117,17 @@ end
 
 local function AddContextMenuOptionSoon(rowControl)
 	if(rowControl:GetOwningWindow() == ZO_TradingHouse) then return end
-	if(BACKPACK:IsHidden()) then return end
+	if(not BACKPACK:IsHidden() or not STORE:IsHidden()) then
+		zo_callLater(function() AddContextMenuOption(rowControl) end, 50)
+	end
+end
 
-	zo_callLater(function() AddContextMenuOption(rowControl) end, 50)
+local function SetupDebugSlashCommand()
+	SLASH_COMMANDS["/stockupdebug"] = function()
+		dbg = not dbg
+		if dbg then d("Debug set to true.")
+		else d("Debug set to false.") end
+	end
 end
 
 local function StockUp_Loaded(eventCode, addonName)
@@ -120,6 +138,7 @@ local function StockUp_Loaded(eventCode, addonName)
 	stock = SUSettings:GetStockedItems()
 	str = StockUpStrings[SUSettings:GetLanguage()]
 
+	SetupDebugSlashCommand()
 	ZO_PreHook("ZO_InventorySlot_ShowContextMenu", AddContextMenuOptionSoon)
 
 	EVENT_MANAGER:RegisterForEvent("StoreOpened", EVENT_OPEN_STORE, StockUp_StoreOpened)
