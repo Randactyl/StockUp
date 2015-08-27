@@ -14,8 +14,8 @@ StockUpStrings = {
     },
     ["en"] = {
         STOCK_UP_NAME = "Stock Up",
-        PREFER_AP = "Prefer AP",
-        PREFER_AP_TOOLTIP = "Use AP to buy items when availible.",
+        PREFER_AP = "Prefer Alliance Points",
+        PREFER_AP_TOOLTIP = "Use AP instead of gold to buy items.",
         STOCK_UP_HEADER = "Stocked Items",
         REFRESH_LIST_BUTTON = "Refresh",
         REFRESH_LIST_BUTTON_WARNING = "Reloads UI",
