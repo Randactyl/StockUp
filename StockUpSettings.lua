@@ -82,6 +82,6 @@ function StockUpSettings:GetStockedItems()
 	return settings.stock
 end
 
-function StockUpSettings:GetCurrencyPreference()
+function StockUpSettings:GetAPPreference()
 	return settings.preferAP
 end
