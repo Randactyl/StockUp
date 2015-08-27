@@ -7,19 +7,45 @@ local STORE = ZO_StoreWindowList
 
 local dbg = false
 
-local function FindStoreItem(itemId)
-	local preferAP = SUSettings:GetCurrencyPreference()
+local function GatherStoreInfo()
+	local storeTable = {}
+	local preferAP = SUSettings:GetAPPreference()
 
-	for index = 1, GetNumStoreItems() do
-		local _, _, stack, _, _, _, _, _, _, currencyType1 = GetStoreEntryInfo(index)
-		local storeItemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(index)))
+	for i = 1, GetNumStoreItems() do
+		local _, _, s, p, _, _, _, _, _, t1, q1 = GetStoreEntryInfo(i)
+		local storeItemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(i)))
 
-		if (preferAP == true) and (currencyType1 == 2) then
- 			if itemId == storeItemId then return index, stack end
-		elseif (preferAP == false) and (currencyType1 == 0) then
- 			if itemId == storeItemId then return index, stack end
-   		end
-   	end
+		--if an item is found for the first time, enter it
+		if storeTable[storeItemId] == nil then
+			storeTable[storeItemId] = {
+				index = i,
+				stack = s,
+				price = p,
+				curType = t1,
+				curQuantity = q1,
+			}
+		--if an item is found again, re-enter it if it costs AP and that is preferred to gold
+		elseif preferAP == true and p == 0 then
+			storeTable[storeItemId] = {
+				index = i,
+				stack = s,
+				price = p,
+				curType = t1,
+				curQuantity = q1,
+			}
+		--if an item is found again, re-enter it if it costs gold and that is preferred to AP
+		elseif preferAP == false and q1 == 0 then
+			storeTable[storeItemId] = {
+				index = i,
+				stack = s,
+				price = p,
+				curType = t1,
+				curQuantity = q1,
+			}
+		end
+	end
+
+	return storeTable
 end
 
 local function GatherBackpackInfo()
@@ -28,8 +54,8 @@ local function GatherBackpackInfo()
 
 	for i = 1, #contents do
 		local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(BAG_BACKPACK, contents[i].data.slotIndex)))
-		
-		if backpackTable[itemId] == nil then 
+
+		if backpackTable[itemId] == nil then
 			backpackTable[itemId] = {
 				amountHave = 0,
 			}
@@ -43,6 +69,7 @@ end
 
 local function StockUp_StoreOpened()
 	local backpackTable = GatherBackpackInfo()
+	storeTable = GatherStoreInfo()
 
 	for itemId, _ in pairs(stock) do
 		local amountWanted = stock[itemId].amount
@@ -51,18 +78,15 @@ local function StockUp_StoreOpened()
 			amountHave = backpackTable[itemId].amountHave
 		end
 		local amountNeeded = amountWanted - amountHave
-		if dbg == true then d("need " .. amountNeeded .. " " .. stock[itemId].itemName) end
+		if dbg == true then d("Need " .. amountNeeded .. " " .. stock[itemId].itemName) end
 
-		if amountNeeded > 0 then
-			local storeIndex, stack = FindStoreItem(itemId)
-			if stack ~= nil then
-				local quantity = --[[zo_min(GetNumBagFreeSlots(BAG_BACKPACK),]]
-					zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))--)
-				local itemName = stock[itemId].itemName
+		if amountNeeded > 0 and storeTable[itemId] ~= nil then
+			local storeIndex = storeTable[itemId].index
+			local quantity = zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))
+			local itemName = stock[itemId].itemName
 
-				if dbg == false then BuyStoreItem(storeIndex, quantity) end
-				d(str.PURCHASE_CONFIRMATION .. quantity .. " " .. itemName)
-			end
+			if dbg == false then BuyStoreItem(storeIndex, quantity) end
+			d(str.PURCHASE_CONFIRMATION .. quantity .. " " .. itemName)
 		end
 	end
 end
