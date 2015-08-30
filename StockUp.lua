@@ -69,7 +69,7 @@ end
 
 local function StockUp_StoreOpened()
 	local backpackTable = GatherBackpackInfo()
-	storeTable = GatherStoreInfo()
+	local storeTable = GatherStoreInfo()
 
 	for itemId, _ in pairs(stock) do
 		local amountWanted = stock[itemId].amount
