@@ -64,7 +64,7 @@ local function DestockItem(rowControl)
 	if rowControl.bagId then
 		itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
 	else
-		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.slotIndex)))
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.index)))
 	end
 
 	d(str.DESTOCK_ITEM_CONFIRMATION .. stock[itemId].itemName .. ".")
@@ -76,7 +76,7 @@ local function StockItem(rowControl)
 	if rowControl.bagId then
 		itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
 	else
-		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.slotIndex)))
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.index)))
 	end
 
 	if(not itemId) then return end
@@ -90,7 +90,7 @@ local function AddContextMenuOption(rowControl)
 	if rowControl.bagId then
 		itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(rowControl.bagId, rowControl.slotIndex)))
 	else
-		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.slotIndex)))
+		itemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(rowControl.index)))
 	end
 
 	if(not stock[itemId]) then
