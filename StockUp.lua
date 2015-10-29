@@ -13,34 +13,25 @@ local function GatherStoreInfo()
 
 	for i = 1, GetNumStoreItems() do
 		local _, _, s, p, _, _, _, _, _, t1, q1 = GetStoreEntryInfo(i)
-		local storeItemId = select(4, ZO_LinkHandler_ParseLink(GetStoreItemLink(i)))
+		local storeItemLink = GetStoreItemLink(i)
+        local storeItemId = select(4, ZO_LinkHandler_ParseLink(storeItemLink))
 
-		--if an item is found for the first time, enter it
-		if storeTable[storeItemId] == nil then
+		if stock[storeItemId] and (
+		  --if an item is found for the first time, enter it
+		  storeTable[storeItemId] == nil or
+		  --if an item is found again, re-enter it if it costs AP and that is
+		  --preferred to gold
+		  (preferAP == true and p == 0) or
+		  --if an item is found again, re-enter it if it costs gold and that is
+		  --preferred to AP
+		  (preferAP == false and q1 == 0) ) then
 			storeTable[storeItemId] = {
 				index = i,
 				stack = s,
 				price = p,
 				curType = t1,
 				curQuantity = q1,
-			}
-		--if an item is found again, re-enter it if it costs AP and that is preferred to gold
-		elseif preferAP == true and p == 0 then
-			storeTable[storeItemId] = {
-				index = i,
-				stack = s,
-				price = p,
-				curType = t1,
-				curQuantity = q1,
-			}
-		--if an item is found again, re-enter it if it costs gold and that is preferred to AP
-		elseif preferAP == false and q1 == 0 then
-			storeTable[storeItemId] = {
-				index = i,
-				stack = s,
-				price = p,
-				curType = t1,
-				curQuantity = q1,
+				itemLink = storeItemLink,
 			}
 		end
 	end
@@ -48,39 +39,16 @@ local function GatherStoreInfo()
 	return storeTable
 end
 
-local function GatherBackpackInfo()
-	local backpackTable = {}
-	local contents = BACKPACK.data
-
-	for i = 1, #contents do
-		local itemId = select(4, ZO_LinkHandler_ParseLink(GetItemLink(BAG_BACKPACK, contents[i].data.slotIndex)))
-
-		if backpackTable[itemId] == nil then
-			backpackTable[itemId] = {
-				amountHave = 0,
-			}
-		end
-		backpackTable[itemId].amountHave = backpackTable[itemId].amountHave + contents[i].data.stackCount
-		if dbg == true then d("have " .. backpackTable[itemId].amountHave .. " " .. contents[i].data.name) end
-	end
-
-	return backpackTable
-end
-
 local function StockUp_StoreOpened()
-	local backpackTable = GatherBackpackInfo()
 	local storeTable = GatherStoreInfo()
 
-	for itemId, _ in pairs(stock) do
+	for itemId, storeItem in pairs(storeTable) do
 		local amountWanted = stock[itemId].amount
-		local amountHave = 0
-		if backpackTable[itemId] then
-			amountHave = backpackTable[itemId].amountHave
-		end
+		local amountHave = GetItemLinkStacks(storeItem.itemLink)
 		local amountNeeded = amountWanted - amountHave
 		if dbg == true then d("Need " .. amountNeeded .. " " .. stock[itemId].itemName) end
 
-		if amountNeeded > 0 and storeTable[itemId] ~= nil then
+		if amountNeeded > 0 then
 			local storeIndex = storeTable[itemId].index
 			local quantity = zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))
 			local itemName = stock[itemId].itemName
