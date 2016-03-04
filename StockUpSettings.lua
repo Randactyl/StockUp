@@ -42,40 +42,63 @@ function StockUpSettings:CreateOptionsMenu()
 		slashCommand = "/stockupsettings",
 		registerForRefresh = true
 	}
-	local optionsData = {}
-	local data = {
-		type = "checkbox",
-		name = str.PREFER_AP,
-		tooltip = str.PREFER_AP_TOOLTIP,
-		getFunc = function() return settings.preferAP end,
-		setFunc = function(value) settings.preferAP = value end
+	local optionsData = {
+		[1] = {
+			type = "checkbox",
+			name = str.PREFER_AP,
+			tooltip = str.PREFER_AP_TOOLTIP,
+			getFunc = function() return settings.preferAP end,
+			setFunc = function(value) settings.preferAP = value end,
+		},
+		[2] = {
+			type = "header",
+			name = str.STOCK_UP_HEADER,
+		},
+		[3] = {
+			type = "button",
+			name = str.REFRESH_LIST_BUTTON,
+			func = function()
+				local oddDescription, evenDescription = self:BuildStockDescription()
+
+				StockUpSettingsDescriptionOdd.data.text = oddDescription
+				StockUpSettingsDescriptionEven.data.text = evenDescription
+			end,
+		},
+		[4] = {
+			type = "description",
+			text = "",
+			width = "half",
+			reference = "StockUpSettingsDescriptionOdd",
+		},
+		[5] = {
+			type = "description",
+			text = "",
+			width = "half",
+			reference = "StockUpSettingsDescriptionEven",
+		},
 	}
-	table.insert(optionsData, data)
-	data = {
-		type = "header",
-		name = str.STOCK_UP_HEADER
-	}
-	table.insert(optionsData, data)
-	data = {
-		type = "button",
-		name = str.REFRESH_LIST_BUTTON,
-		func = function() ReloadUI() end,
-		warning = str.REFRESH_LIST_BUTTON_WARNING
-	}
-	table.insert(optionsData, data)
-	if(settings) then
-		for _,v in pairs(settings.stock) do
-			data = {
-				type = "description",
-				text = v.itemName .. " (" .. v.amount .. ")",
-				width = "half",
-			}
-			table.insert(optionsData, data)
-		end
-	end
 
 	LAM:RegisterAddonPanel("StockUpSettingsPanel", panel)
 	LAM:RegisterOptionControls("StockUpSettingsPanel", optionsData)
+end
+
+function StockUpSettings:BuildStockDescription()
+	local oddDescription = ""
+	local evenDescription = ""
+	local count = 0
+	local stock = ZO_ShallowTableCopy(settings.stock)
+	--table.sort(stock)
+
+	for _, v in pairs(stock) do
+		count = count + 1
+		if count % 2 == 1 then
+			oddDescription = oddDescription .. "(" .. v.amount .. ") " .. v.itemName .. "\n"
+		else
+			evenDescription = evenDescription .. "(" .. v.amount .. ") " .. v.itemName .. "\n"
+		end
+	end
+
+	return oddDescription, evenDescription
 end
 
 function StockUpSettings:GetStockedItems()
