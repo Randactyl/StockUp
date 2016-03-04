@@ -2,7 +2,7 @@ StockUpSettings = ZO_Object:Subclass()
 
 local LAM = LibStub("LibAddonMenu-2.0")
 local settings = nil
-local version = "2.0"
+local version = "1.3.0.0"
 local str = nil
 
 function StockUpSettings:New()
@@ -20,7 +20,7 @@ function StockUpSettings:Initialize()
 	}
 
 	str = StockUpStrings[self:GetLanguage()]
-	settings = ZO_SavedVars:New("StockUp_Settings", version, nil, defaults)
+	settings = ZO_SavedVars:New("StockUp_Settings", "2.0", nil, defaults)
 
 	self:CreateOptionsMenu()
 end
