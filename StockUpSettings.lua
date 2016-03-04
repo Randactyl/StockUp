@@ -34,6 +34,8 @@ function StockUpSettings:GetLanguage()
 end
 
 function StockUpSettings:CreateOptionsMenu()
+	local oddDescription, evenDescription = self:BuildStockDescription()
+
 	local panel = {
 		type = "panel",
 		name = str.STOCK_UP_NAME,
@@ -66,13 +68,13 @@ function StockUpSettings:CreateOptionsMenu()
 		},
 		[4] = {
 			type = "description",
-			text = "",
+			text = oddDescription,
 			width = "half",
 			reference = "StockUpSettingsDescriptionOdd",
 		},
 		[5] = {
 			type = "description",
-			text = "",
+			text = evenDescription,
 			width = "half",
 			reference = "StockUpSettingsDescriptionEven",
 		},
