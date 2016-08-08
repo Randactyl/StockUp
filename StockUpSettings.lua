@@ -20,7 +20,7 @@ function StockUpSettings:Initialize()
 	}
 
 	str = StockUpStrings[self:GetLanguage()]
-	settings = ZO_SavedVars:New("StockUp_Settings", "2.0", nil, defaults)
+	settings = ZO_SavedVars:NewCharacterNameSettings("StockUp_Settings", "2.0", nil, defaults)
 
 	self:CreateOptionsMenu()
 end
