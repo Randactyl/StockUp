@@ -45,12 +45,14 @@ local function StockUp_StoreOpened()
 
 	for itemId, storeItem in pairs(storeTable) do
 		local amountWanted = stock[itemId].amount
-		local amountHave = GetItemLinkStacks(storeItem.itemLink)
+		local bagCount, bankCount, craftBagCount = GetItemLinkStacks(storeItem.itemLink)
+		local amountHave = bagCount + craftBagCount
 		local amountNeeded = amountWanted - amountHave
+
 		if dbg == true then d("Need " .. amountNeeded .. " " .. stock[itemId].itemName) end
 
 		if amountNeeded > 0 then
-			local storeIndex = storeTable[itemId].index
+			local storeIndex = storeItem.index
 			local quantity = zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))
 			local itemName = stock[itemId].itemName
 
