@@ -2,7 +2,6 @@ local SUSettings = nil
 local stock = nil
 local str = nil
 
-local BACKPACK = ZO_PlayerInventoryBackpack
 local BACKPACK = ZO_PlayerInventoryList
 local STORE = ZO_StoreWindowList
 local CRAFTBAG = ZO_CraftBagList
