@@ -42,6 +42,11 @@ end
 
 local function StockUp_StoreOpened()
 	local storeTable = GatherStoreInfo()
+	local curTypeToFormattedTexture = {
+		[CURT_MONEY] = "|t16:16:esoui/art/currency/currency_gold.dds|t",
+		[CURT_ALLIANCE_POINTS] = "|t16:16:esoui/art/currency/alliancepoints.dds|t",
+		[CURT_TELVAR_STONES] = "|t16:16:esoui/art/currency/currency_telvar.dds|t",
+	}
 
 	for itemId, storeItem in pairs(storeTable) do
 		local amountWanted = stock[itemId].amount
@@ -54,10 +59,12 @@ local function StockUp_StoreOpened()
 		if amountNeeded > 0 then
 			local storeIndex = storeItem.index
 			local quantity = zo_min(amountNeeded, GetStoreEntryMaxBuyable(storeIndex))
+			local price = zo_max(storeItem.price, storeItem.curQuantity)
+			price = price * quantity
 			local itemName = stock[itemId].itemName
 
 			if dbg == false then BuyStoreItem(storeIndex, quantity) end
-			d(str.PURCHASE_CONFIRMATION .. quantity .. " " .. itemName)
+			d(str.PURCHASE_CONFIRMATION .. quantity .. " " .. itemName .. " -- " .. price .. curTypeToFormattedTexture[storeItem.curType])
 		end
 	end
 end
