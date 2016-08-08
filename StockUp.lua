@@ -3,7 +3,9 @@ local stock = nil
 local str = nil
 
 local BACKPACK = ZO_PlayerInventoryBackpack
+local BACKPACK = ZO_PlayerInventoryList
 local STORE = ZO_StoreWindowList
+local CRAFTBAG = ZO_CraftBagList
 
 local dbg = false
 
@@ -107,7 +109,7 @@ end
 
 local function AddContextMenuOptionSoon(rowControl)
 	if(rowControl:GetOwningWindow() == ZO_TradingHouse) then return end
-	if(not BACKPACK:IsHidden() or not STORE:IsHidden()) then
+	if(not BACKPACK:IsHidden() or not STORE:IsHidden() or not CRAFTBAG:IsHidden()) then
 		zo_callLater(function() AddContextMenuOption(rowControl) end, 50)
 	end
 end
