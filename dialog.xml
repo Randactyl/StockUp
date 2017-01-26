@@ -2,7 +2,7 @@
     <Controls>
         <TopLevelControl name="StockItem" inherits="ZO_CustomDialogBase">
             <OnInitialized>
-                StockUp_SetupDialog(self)
+                StockUp.dialog.InitializeDialog(self)
             </OnInitialized>
 
             <Controls>
