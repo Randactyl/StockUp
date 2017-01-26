@@ -43,6 +43,7 @@ end
 local function StockUp_StoreOpened()
     local storeTable = GatherStoreInfo()
     local curTypeToFormattedTexture = {
+        [CURT_NONE] = "|t16:16:esoui/art/currency/currency_gold.dds|t",
         [CURT_MONEY] = "|t16:16:esoui/art/currency/currency_gold.dds|t",
         [CURT_ALLIANCE_POINTS] = "|t16:16:esoui/art/currency/alliancepoints.dds|t",
         [CURT_TELVAR_STONES] = "|t16:16:esoui/art/currency/currency_telvar.dds|t",
