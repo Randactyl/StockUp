@@ -47,6 +47,7 @@ local function StockUp_StoreOpened()
         [CURT_MONEY] = "|t16:16:esoui/art/currency/currency_gold.dds|t",
         [CURT_ALLIANCE_POINTS] = "|t16:16:esoui/art/currency/alliancepoints.dds|t",
         [CURT_TELVAR_STONES] = "|t16:16:esoui/art/currency/currency_telvar.dds|t",
+        [CURT_WRIT_VOUCHERS] = "|t16:16:esoui/art/currency/currency_writvoucher.dds|t",
     }
 
     for itemId, storeItem in pairs(storeTable) do
