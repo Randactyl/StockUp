@@ -1,11 +1,11 @@
 <GuiXml>
-	<Controls>
-		<TopLevelControl name="StockItem" inherits="ZO_CustomDialogBase">
-			<OnInitialized>
-				StockUp_SetupDialog(self)
-			</OnInitialized>
+    <Controls>
+        <TopLevelControl name="StockItem" inherits="ZO_CustomDialogBase">
+            <OnInitialized>
+                StockUp_SetupDialog(self)
+            </OnInitialized>
 
-			<Controls>
+            <Controls>
                 <Label name="$(parent)Prompt" inherits="ZO_DialogContentAnchors" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" font="ZoFontGame"/>
 
                 <Button name="$(parent)Source" inherits="ZO_ItemSlot">

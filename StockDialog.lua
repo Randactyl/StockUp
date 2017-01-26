@@ -14,18 +14,18 @@ local function SetupStockItem(stackControl, inventorySlotControl)
 end
 
 function StockUp_SetupDialog(self)
-	local info = {
+    local info = {
         customControl = self,
         setup = SetupStockItem,
         title = {
             text = zo_strupper(str.STOCK_UP_NAME),
         },
         buttons = {
-        	[1] = {
+            [1] = {
                 control = GetControl(self, "Split"),
                 text = str.STOCK_ITEM_MENU_OPTION,
                 callback = function(stackControl)
-    			    local bagId = data.bagId
+                    local bagId = data.bagId
                     local slotIndex = data.slotIndex
                     local itemId, itemLink
                     if bagId then
@@ -37,9 +37,9 @@ function StockUp_SetupDialog(self)
                     local stock = StockUpSettings:GetStockedItems()
 
                     stock[itemId] = {
-						itemName = zo_strformat("<<t:1>>", GetItemLinkName(itemLink)),
-						amount = stackControl.spinner:GetValue(),
-				    }
+                        itemName = zo_strformat("<<t:1>>", GetItemLinkName(itemLink)),
+                        amount = stackControl.spinner:GetValue(),
+                    }
 
                     d(str.STOCK_ITEM_CONFIRMATION .. stock[itemId].amount .. " " .. stock[itemId].itemName .. "!")
                 end,
