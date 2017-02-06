@@ -1,6 +1,6 @@
 StockUp = {}
 local SU = StockUp
-SU.addonVersion = "1.4.0.0"
+SU.addonVersion = "2.0.0.0"
 SU.debug = false
 
 local strings, util, settings
