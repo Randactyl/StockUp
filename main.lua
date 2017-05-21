@@ -116,9 +116,13 @@ local function loaded(eventCode, addonName)
         SU.debug = not SU.debug
         d("Debug set to "..tostring(SU.debug)..".")
     end
+
+    --Get slash command set up by LAM, change over to LSC
     local slashcommand = SLASH_COMMANDS["/stockup"]
     SLASH_COMMANDS["/stockup"] = nil
     local command = util.LSC:Register("/stockup", slashcommand, strings.LSC_DESCRIPTION_SETTINGS)
+
+    --add LSC debug subcommand
     local debugCommand = command:RegisterSubCommand()
     debugCommand:AddAlias("debug")
     debugCommand:SetCallback(toggleDebug)
