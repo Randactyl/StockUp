@@ -19,6 +19,6 @@ function util.GetItemInfo(bagId, slotIndex)
     return itemLink, itemId
 end
 
-function util.GetInfoFromSlot(slot)
+function util.GetItemInfoFromSlot(slot)
     return util.GetItemInfo(slot.bagId, slot.slotIndex or slot.index)
 end

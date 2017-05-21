@@ -20,7 +20,7 @@ local function loaded(eventCode, addonName)
             if slot:GetOwningWindow() == ZO_TradingHouse then return end
 
             local function addContextMenuOption()
-                local _, itemId = util.GetInfoFromSlot(slot)
+                local _, itemId = util.GetItemInfoFromSlot(slot)
 
                 if(not settings.IsItemStocked(itemId)) then
                     local function stockItem()
