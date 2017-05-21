@@ -114,9 +114,7 @@ local function loaded(eventCode, addonName)
 
     local function toggleDebug()
         SU.debug = not SU.debug
-
-        if SU.debug then d("Debug set to true.")
-        else d("Debug set to false.") end
+        d("Debug set to "..tostring(SU.debug)..".")
     end
     local slashcommand = SLASH_COMMANDS["/stockup"]
     SLASH_COMMANDS["/stockup"] = nil
