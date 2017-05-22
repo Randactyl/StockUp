@@ -1,7 +1,7 @@
 ## Title: Stock Up
 ## Author: Randactyl
-## Version: 2.0.0.0
-## APIVersion: 100018
+## Version: 2.0.1.0
+## APIVersion: 100019
 ## SavedVariables: StockUp_Settings
 
 lib/LibStub/LibStub.lua
