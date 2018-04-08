@@ -16,23 +16,7 @@ local function OnAddonLoaded(_, addonName)
     settings.InitializeSettings()
 
     local function initializeHooks()
-        local function wrapFunction(object, functionName, wrapper)
-            if type(object) == "string" then
-                wrapper = functionName
-                functionName = object
-                object = _G
-            end
-
-            local originalFunction = object[functionName]
-
-            object[functionName] = function (...)
-                return wrapper(originalFunction, ...)
-            end
-        end
-
-        local function addContextMenuOption(originalFunc, slot)
-            originalFunc(slot)
-
+        local function addContextMenuOption(slot)
             if slot:GetOwningWindow() == ZO_TradingHouse then return end
 
             if not ZO_PlayerInventoryList:IsHidden() or
@@ -58,7 +42,7 @@ local function OnAddonLoaded(_, addonName)
             end
         end
 
-        wrapFunction("ZO_InventorySlot_ShowContextMenu", addContextMenuOption)
+        util.PostHook("ZO_InventorySlot_ShowContextMenu", addContextMenuOption)
 
         local function onOpenStore()
             local function gatherStoreInfo()

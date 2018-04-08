@@ -6,14 +6,6 @@ SU.util = {
 
 local util = SU.util
 
-function util.SystemMessage(message)
-    if CHAT_SYSTEM.primaryContainer then
-        CHAT_SYSTEM.primaryContainer:OnChatEvent(nil, message, CHAT_CATEGORY_SYSTEM)
-    else
-        CHAT_SYSTEM:AddMessage(message)
-    end
-end
-
 function util.GetItemInfo(bagId, slotIndex)
     local itemLink, itemId
 
@@ -30,4 +22,32 @@ end
 
 function util.GetItemInfoFromSlot(slot)
     return util.GetItemInfo(slot.bagId, slot.slotIndex or slot.index)
+end
+
+-- Analagous to ZO_PreHook
+-- Optional parameter was moved to the end of the list,
+-- hookFunction will always run after the existing function.
+function util.PostHook(existingFunctionName, hookFunction, objectTable)
+    if not objectTable then
+        objectTable = _G
+    end
+
+    local existingFunction = objectTable[existingFunctionName]
+
+    if (existingFunction and type(existingFunction) == "function") then
+        local newFunction = function(...)
+            existingFunction(...)
+            hookFunction(...)
+        end
+
+        objectTable[existingFunctionName] = newFunction
+    end
+end
+
+function util.SystemMessage(message)
+    if CHAT_SYSTEM.primaryContainer then
+        CHAT_SYSTEM.primaryContainer:OnChatEvent(nil, message, CHAT_CATEGORY_SYSTEM)
+    else
+        CHAT_SYSTEM:AddMessage(message)
+    end
 end
