@@ -1,10 +1,18 @@
 local SU = StockUp
-SU.util = {}
+SU.util = {
+    LAM = LibStub("LibAddonMenu-2.0"),
+    LSC = LibStub("LibSlashCommander"),
+}
 
-local strings = SU.strings
 local util = SU.util
-util.LAM = LibStub("LibAddonMenu-2.0")
-util.LSC = LibStub("LibSlashCommander")
+
+function util.SystemMessage(message)
+    if CHAT_SYSTEM.primaryContainer then
+        CHAT_SYSTEM.primaryContainer:OnChatEvent(nil, message, CHAT_CATEGORY_SYSTEM)
+    else
+        CHAT_SYSTEM:AddMessage(message)
+    end
+end
 
 function util.GetItemInfo(bagId, slotIndex)
     local itemLink, itemId
@@ -14,6 +22,7 @@ function util.GetItemInfo(bagId, slotIndex)
     else
         itemLink = GetStoreItemLink(slotIndex)
     end
+
     itemId = select(4, ZO_LinkHandler_ParseLink(itemLink))
 
     return itemLink, itemId

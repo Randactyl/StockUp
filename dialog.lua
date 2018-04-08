@@ -20,6 +20,7 @@ function dialog.InitializeDialog(dialogControl)
         dialogControl.slotControl = inventorySlotControl
         dialogControl.spinner:SetMinMax(1, nil)
         dialogControl.spinner:SetValue(5)
+
         ZO_ItemSlot_SetupSlot(sourceSlot, 0, itemIcon)
     end
 
@@ -27,12 +28,12 @@ function dialog.InitializeDialog(dialogControl)
         customControl = dialogControl,
         setup = setupStockItem,
         title = {
-            text = zo_strupper(strings.STOCK_UP_NAME),
+            text = GetString(SI_STOCKUP_STOCK_UP_NAME):upper(),
         },
         buttons = {
-            [1] = {
+            {
                 control = GetControl(dialogControl, "Split"),
-                text = strings.STOCK_ITEM_MENU_OPTION,
+                text = SI_STOCKUP_STOCK_ITEM_MENU_OPTION,
                 callback = function()
                     local data = dialogControl.data
                     local itemLink, itemId = util.GetItemInfoFromSlot(data)
@@ -41,20 +42,22 @@ function dialog.InitializeDialog(dialogControl)
                     settings.StockItem(itemId, itemLink, amount)
                 end,
             },
-            [2] = {
+            {
                 control = GetControl(dialogControl, "Cancel"),
                 text = SI_DIALOG_CANCEL,
-            }
-        }
+            },
+        },
     }
+
     ZO_Dialogs_RegisterCustomDialog("STOCK_ITEM", info)
 
     dialogControl.spinner = ZO_Spinner:New(GetControl(dialogControl, "Spinner"))
 
-    local function HandleCursorPickup(eventId, cursorType)
+    local function onCursorPickup(_, cursorType)
         if cursorType == MOUSE_CONTENT_INVENTORY_ITEM then
             ZO_Dialogs_ReleaseAllDialogsOfName("STACK_SPLIT")
         end
     end
-    EVENT_MANAGER:RegisterForEvent("ZO_Stack", EVENT_CURSOR_PICKUP, HandleCursorPickup)
+
+    EVENT_MANAGER:RegisterForEvent("ZO_Stack", EVENT_CURSOR_PICKUP, onCursorPickup)
 end

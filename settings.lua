@@ -1,16 +1,16 @@
 local SU = StockUp
-SU.settings = {}
+SU.settings = {
+    varsVersion = "2.0",
+}
 
-local strings = SU.strings
 local util = SU.util
 local settings = SU.settings
-settings.varsVersion = "2.0"
 
 local vars
 
 function settings.InitializeSettings()
     local defaultVars = {
-        preferAP = false,
+        preferAP = true,
         stock = {},
     }
 
@@ -19,26 +19,28 @@ function settings.InitializeSettings()
 
     local function createOptionsMenu()
         local function buildStockDescription()
-            local oddDescription = ""
-            local evenDescription = ""
+            local oddDescription, evenDescription = "", ""
             local count = 0
-            local stock = ZO_ShallowTableCopy(vars.stock)
 
-            for _, v in pairs(stock) do
+            for _, v in pairs(vars.stock) do
                 count = count + 1
+
                 if count % 2 == 1 then
-                    oddDescription = oddDescription .. "(" .. v.amount .. ") " .. v.itemName .. "\n"
+                    oddDescription = string.format("%s (%d) %s\n", oddDescription, v.amount, v.itemName)
                 else
-                    evenDescription = evenDescription .. "(" .. v.amount .. ") " .. v.itemName .. "\n"
+                    evenDescription = string.format("%s (%d) %s\n", evenDescription, v.amount, v.itemName)
                 end
             end
 
             return oddDescription, evenDescription
         end
+
         local oddDescription, evenDescription = buildStockDescription()
+
         local panel = {
             type = "panel",
-            name = strings.STOCK_UP_NAME,
+            name = SU.name,
+            displayName = SI_STOCKUP_STOCK_UP_NAME,
             author = "Randactyl",
             version = SU.addonVersion,
             website = "http://www.esoui.com/downloads/info705-StockUp.html",
@@ -46,44 +48,46 @@ function settings.InitializeSettings()
             registerForRefresh = true
         }
         local optionsData = {
-            [1] = {
+            {
                 type = "checkbox",
-                name = strings.PREFER_AP,
-                tooltip = strings.PREFER_AP_TOOLTIP,
+                name = SI_STOCKUP_PREFER_AP,
+                tooltip = SI_STOCKUP_PREFER_AP_TOOLTIP,
                 getFunc = function() return vars.preferAP end,
                 setFunc = function(value) vars.preferAP = value end,
             },
-            [2] = {
+            {
                 type = "header",
-                name = strings.STOCK_UP_HEADER,
+                name = SI_STOCKUP_STOCK_UP_HEADER,
             },
-            [3] = {
-                type = "button",
-                name = strings.REFRESH_LIST_BUTTON,
-                func = function()
-                    local oddDescription, evenDescription = buildStockDescription()
-
-                    StockUpSettingsDescriptionOdd.data.text = oddDescription
-                    StockUpSettingsDescriptionEven.data.text = evenDescription
-                end,
-            },
-            [4] = {
+            {
                 type = "description",
                 text = oddDescription,
                 width = "half",
                 reference = "StockUpSettingsDescriptionOdd",
             },
-            [5] = {
+            {
                 type = "description",
                 text = evenDescription,
                 width = "half",
                 reference = "StockUpSettingsDescriptionEven",
+            },
+            {
+                type = "button",
+                name = SI_STOCKUP_REFRESH_LIST_BUTTON,
+                width = "half",
+                func = function()
+                    oddDescription, evenDescription = buildStockDescription()
+
+                    StockUpSettingsDescriptionOdd.data.text = oddDescription
+                    StockUpSettingsDescriptionEven.data.text = evenDescription
+                end,
             },
         }
 
         util.LAM:RegisterAddonPanel("StockUpSettingsPanel", panel)
         util.LAM:RegisterOptionControls("StockUpSettingsPanel", optionsData)
     end
+
     createOptionsMenu()
 end
 
@@ -93,7 +97,8 @@ function settings.DestockItem(itemId)
     local name = vars.stock[itemId].itemName
 
     vars.stock[itemId] = nil
-    d(strings.DESTOCK_ITEM_CONFIRMATION .. name .. ".")
+
+    util.SystemMessage(string.format("%s %s.", GetString(SI_STOCKUP_DESTOCK_ITEM_CONFIRMATION), ZO_SELECTED_TEXT:Colorize(name)))
 end
 
 function settings.IsAPPreferred()
@@ -116,5 +121,6 @@ function settings.StockItem(itemId, itemLink, amount)
         itemName = zo_strformat("<<t:1>>", GetItemLinkName(itemLink)),
         amount = amount,
     }
-    d(strings.STOCK_ITEM_CONFIRMATION .. vars.stock[itemId].amount .. " " .. vars.stock[itemId].itemName .. "!")
+
+    util.SystemMessage(string.format("%s %dx %s!", GetString(SI_STOCKUP_STOCK_ITEM_CONFIRMATION), vars.stock[itemId].amount, ZO_SELECTED_TEXT:Colorize(vars.stock[itemId].itemName)))
 end
