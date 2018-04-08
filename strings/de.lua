@@ -1,13 +1,14 @@
-StockUp.strings = {
-    STOCK_UP_NAME = "Stock Up",
-    PREFER_AP = "AP vorziehen",
-    PREFER_AP_TOOLTIP = "Allianzpunkte benutzen um Gegenstände zu kaufen wenn verfügbar.",
-    STOCK_UP_HEADER = "Vorrätige Gegenstände",
-    REFRESH_LIST_BUTTON = "Aktualisieren",
-    REFRESH_LIST_BUTTON_WARNING = "Lädt das Interface neu",
-    STOCK_ITEM_MENU_OPTION = "Aufstocken",
-    DESTOCK_ITEM_MENU_OPTION = "Aufstocken deaktivieren",
-    STOCK_ITEM_CONFIRMATION = "Automatisches aufstocken von ", -- "Automatisches aufstocken von x [Großer Seelenstein]!"
-    DESTOCK_ITEM_CONFIRMATION = "Aufstocken deaktiviert für ", -- "Aufstocken deaktiviert für [Großer Seelenstein]."
-    PURCHASE_CONFIRMATION = "Kaufe", -- "Kaufe x [Großer Seelenstein] -- y[CUR_TEXTURE]"
-}
+SafeAddString(SI_STOCKUP_STOCK_UP_NAME , "Stock Up")
+SafeAddString(SI_STOCKUP_PREFER_AP , "AP vorziehen")
+SafeAddString(SI_STOCKUP_PREFER_AP_TOOLTIP , "Allianzpunkte benutzen um Gegenstände zu kaufen wenn verfügbar.")
+SafeAddString(SI_STOCKUP_STOCK_UP_HEADER , "Vorrätige Gegenstände")
+SafeAddString(SI_STOCKUP_REFRESH_LIST_BUTTON , "Aktualisieren")
+SafeAddString(SI_STOCKUP_STOCK_ITEM_MENU_OPTION , "Aufstocken")
+SafeAddString(SI_STOCKUP_DESTOCK_ITEM_MENU_OPTION , "Aufstocken deaktivieren")
+SafeAddString(SI_STOCKUP_STOCK_ITEM_CONFIRMATION , "Automatisches aufstocken von")
+SafeAddString(SI_STOCKUP_DESTOCK_ITEM_CONFIRMATION , "Aufstocken deaktiviert für")
+SafeAddString(SI_STOCKUP_PURCHASE_CONFIRMATION , "Kaufte")
+SafeAddString(SI_STOCKUP_NOT_ENOUGH_CURRENCY , "Nicht genügend %s um %s zu kaufen.")
+SafeAddString(SI_STOCKUP_LSC_DESCRIPTION_SETTINGS , "Stock Up Einstellungen öffnen")
+SafeAddString(SI_STOCKUP_LSC_DESCRIPTION_DEBUG , "Debug aktivieren / deaktivieren")
+SafeAddString(SI_STOCKUP_DEBUG_MODE , "Debugmodus ist %s")

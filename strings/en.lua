@@ -1,15 +1,21 @@
-StockUp.strings = {
-    STOCK_UP_NAME = "Stock Up",
-    PREFER_AP = "Prefer Alliance Points",
-    PREFER_AP_TOOLTIP = "Use AP instead of gold to buy items.",
-    STOCK_UP_HEADER = "Stocked Items",
-    REFRESH_LIST_BUTTON = "Refresh",
-    REFRESH_LIST_BUTTON_WARNING = "Reloads UI",
-    STOCK_ITEM_MENU_OPTION = "Stock Item",
-    DESTOCK_ITEM_MENU_OPTION = "Destock Item",
-    STOCK_ITEM_CONFIRMATION = "Will stock ", --whole string is, for example, "Will stock x Pact Stone Trebuchet!"
-    DESTOCK_ITEM_CONFIRMATION = "No longer stocking ", --"No longer stocking Pact Stone Trebuchet."
-    PURCHASE_CONFIRMATION = "Bought ", --"Bought x Pact Stone Trebuchet -- y[CUR_TEXTURE]"
-    LSC_DESCRIPTION_SETTINGS = "Open Stock Up settings",
-    LSC_DESCRIPTION_DEBUG = "Toggle debug mode on/off",
+local strings = {
+	SI_STOCKUP_STOCK_UP_NAME = "Stock Up",
+	SI_STOCKUP_PREFER_AP = "Prefer Alliance Points",
+	SI_STOCKUP_PREFER_AP_TOOLTIP = "Use AP instead of gold to buy items.",
+	SI_STOCKUP_STOCK_UP_HEADER = "Stocked Items",
+	SI_STOCKUP_REFRESH_LIST_BUTTON = "Refresh",
+	SI_STOCKUP_STOCK_ITEM_MENU_OPTION = "Stock Item",
+	SI_STOCKUP_DESTOCK_ITEM_MENU_OPTION = "Destock Item",
+	SI_STOCKUP_STOCK_ITEM_CONFIRMATION = "Will stock ",
+	SI_STOCKUP_DESTOCK_ITEM_CONFIRMATION = "No longer stocking ",
+	SI_STOCKUP_PURCHASE_CONFIRMATION = "Bought",
+	SI_STOCKUP_NOT_ENOUGH_CURRENCY = "Not enough %s to buy %s.",
+	SI_STOCKUP_LSC_DESCRIPTION_SETTINGS = "Open Stock Up settings",
+	SI_STOCKUP_LSC_DESCRIPTION_DEBUG = "Toggle debug mode on/off",
+	SI_STOCKUP_DEBUG_MODE = "Debug Mode is %s",
 }
+
+for stringId, stringValue in pairs(strings) do
+   ZO_CreateStringId(stringId, stringValue)
+   SafeAddVersion(stringId, 1)
+end
