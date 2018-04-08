@@ -23,7 +23,7 @@ local function OnAddonLoaded(_, addonName)
                 object = _G
             end
 
-            local originalFunction = objec[functionName]
+            local originalFunction = object[functionName]
 
             object[functionName] = function (...)
                 return wrapper(originalFunction, ...)
