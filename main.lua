@@ -1,6 +1,6 @@
 StockUp = {
     name = "StockUp",
-    addonVersion = "2.0.0.0",
+    addonVersion = "2.1.0.0",
     debug = false,
 }
 local SU = StockUp
